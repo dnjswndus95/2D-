@@ -16,4 +16,5 @@ def draw(number, x, y, scale = 1):
 		if number == 0:
 			break
 		x -= dx
+		.
 
