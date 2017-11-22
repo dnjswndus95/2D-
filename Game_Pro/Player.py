@@ -1,8 +1,13 @@
 from pico2d import*
 import random
+import os
+from bullet import Player_Bullet
+
+os.chdir('C:\\Temp\\lab01')
 
 class Player:
-    image = None
+    character_image = None
+    shoot_image = None
     shooting_sound = None
 
     PIXEL_PER_KMETER = (10.0/0.5)
@@ -10,6 +15,9 @@ class Player:
     RUN_SPEED_KMPM = RUN_SPEED_KMPH / 60
     RUN_SPEED_KMPS = RUN_SPEED_KMPM / 60
     RUN_SPEED_PPS = RUN_SPEED_KMPS * PIXEL_PER_KMETER
+    TIME_PER_ACTION = 0.5
+    ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+    FRAMES_PER_ACTION = 11
 
     STAND, MOVE_RIGHT, MOVE_LEFT, MOVE_UP, MOVE_DOWN = 0, 1, 2, 3, 4
 
@@ -18,8 +26,12 @@ class Player:
         self.dir = 0  # 0 : stand, 1 : right, 2 : left, 3 : up, 4 : down
         self.state = self.STAND
         self.live = True
+        self.frame = 0
+        self.total_frame = 0.0
         self.shooting = False
-        self.image = load_image('character_right.png')
+        self.character_image = load_image('character_right.png')
+
+
 
 
     def you_dead(self):
@@ -33,11 +45,12 @@ class Player:
         elif self.state in(self.MOVE_UP, self.MOVE_DOWN):
             self.y += (self.dir * distance)
 
+        self.frame += int(self.total_frame) % 8
+        self.total_frame += Player.FRAMES_PER_ACTION * Player.ACTION_PER_TIME * frame_time
+
+
     def draw(self):
-        frame = 0
-        self.image.clip_draw(frame * 40, 0, 40, 40, self.x, self.y)
-        self.frame = (frame + 1) % 11
-        delay(0.05)
+        self.character_image.clip_draw((self.frame%11) * 40, 0, 40, 40, self.x, self.y)
         # clip_draw_to_origin(self, left, botton, width, height, x, y, w, h)
 
     def handle_event(self, event):

@@ -24,7 +24,7 @@ class Background:
 
     def update(self, frame_time):
         self.speed = Background.RUN_SPEED_PPS
-        self.bottom = (self.width + frame_time * self.speed) % self.image.w
+        self.width = (self.width + frame_time * self.speed) % self.image.w
 
     def handle_event(self, event):
         if event.type == SDL_KEYDOWN:
