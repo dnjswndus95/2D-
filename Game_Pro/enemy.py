@@ -1,7 +1,7 @@
 from pico2d import*
 import random
 
-class Enemy:
+class Enemy1:
     image = None
 
     def __init__(self):

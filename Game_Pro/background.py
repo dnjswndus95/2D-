@@ -1,4 +1,5 @@
 from pico2d import*
+from Resource import*
 
 class Background:
     PIXEL_PER_KMETER = (10.0/0.5)

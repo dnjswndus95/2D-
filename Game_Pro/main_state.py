@@ -5,11 +5,11 @@ import title_state
 from Player import*
 import enemy
 from background import Background
-from bullet import Player_Bullet
+from Resource import*
 
 from pico2d import*
 
-os.chdir('C:\\Temp\\lab01')
+#os.chdir('C:\\Temp\\lab01')
 
 running = True;
 name = "MainState"
@@ -19,14 +19,6 @@ enemy = None
 background = None
 player_bullet = None
 
-def create_world():
-    global player
-    global background
-    global player_bullet
-
-    background = Background(800, 600)
-    player = Player()
-    player_bullet = Player_Bullet()
 
 def destroy_world():
     global player, enemy, background, player_bullet
@@ -38,9 +30,12 @@ def destroy_world():
 
 
 def enter():
-    global background
+    global background, player, background, player_bullet
 
-    create_world()
+    background = Background(800, 600)
+    player = Player()
+    player_bullet = []
+
 
 def exit():
     destroy_world()
@@ -61,7 +56,6 @@ def handle_events(frame_time):
             game_framework.quit()
         else:
             player.handle_event(event)
-            player_bullet.handle_event(event)
 
 def update(frame_time):
     global player
@@ -69,15 +63,23 @@ def update(frame_time):
 
     background.update(frame_time)
     player.update(frame_time)
-    player_bullet.update(frame_time, player.x, player.y)
+
+    for new_attack in bullets:
+        new_attack.update(frame_time)
+        if new_attack.x > 800 or new_attack.x < 0:
+            del (new_attack)
 
 def draw(frame_time):
 
     clear_canvas()
     background.draw()
-    Player.draw(player)
-    player_bullet.draw()
+    player.draw()
+    for attack in bullets:
+        attack.draw()
+
     update_canvas()
+
+
 
 
 

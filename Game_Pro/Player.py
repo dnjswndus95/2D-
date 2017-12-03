@@ -1,9 +1,12 @@
 from pico2d import*
 import random
 import os
-from bullet import Player_Bullet
+from Resource import*
 
-os.chdir('C:\\Temp\\lab01')
+
+bullets = []
+
+#os.chdir('C:\\Temp\\lab01')
 
 class Player:
     character_image = None
@@ -19,34 +22,44 @@ class Player:
     ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
     FRAMES_PER_ACTION = 11
 
-    STAND, MOVE_RIGHT, MOVE_LEFT, MOVE_UP, MOVE_DOWN = 0, 1, 2, 3, 4
+    MOVE_UP = False
+    MOVE_DOWN = False
+    MOVE_RIGHT = False
+    MOVE_LEFT = False
+    STAND = False
 
     def __init__(self):
         self.x, self.y = 100, 300
-        self.dir = 0  # 0 : stand, 1 : right, 2 : left, 3 : up, 4 : down
-        self.state = self.STAND
+        self.dir = 1  # 0 : stand, 1 : right, 2 : left, 3 : up, 4 : down
         self.live = True
         self.frame = 0
         self.total_frame = 0.0
-        self.shooting = False
+        self.state = self.STAND
         self.character_image = load_image('character_right.png')
-
-
 
 
     def you_dead(self):
         self.live = False
         pass
 
-    def update(self, frame_time):
-        distance = Player.RUN_SPEED_PPS * frame_time
-        if self.state in(self.MOVE_RIGHT, self.MOVE_LEFT):
-            self.x += (self.dir * distance)
-        elif self.state in(self.MOVE_UP, self.MOVE_DOWN):
-            self.y += (self.dir * distance)
+    def move(self):
+        if self.MOVE_RIGHT:
+            self.x += self.distance
+        if self.MOVE_LEFT:
+            self.x -= self.distance
+        if self.MOVE_UP:
+            self.y += self.distance
+        if self.MOVE_DOWN:
+            self.y -= self.distance
 
+    def update(self, frame_time):
+        self.distance = self.RUN_SPEED_PPS * frame_time
+        self.move()
         self.frame += int(self.total_frame) % 8
         self.total_frame += Player.FRAMES_PER_ACTION * Player.ACTION_PER_TIME * frame_time
+
+        self.x = clamp(0, self.x, 800)
+        self.y = clamp(0, self.y, 600)
 
 
     def draw(self):
@@ -55,44 +68,68 @@ class Player:
 
     def handle_event(self, event):
         if(event.type, event.key) ==(SDL_KEYDOWN, SDLK_LEFT):
-            if self.state in (self.STAND, self.MOVE_LEFT):
-                self.state = self.MOVE_LEFT
-                self.dir = -1
+            self.MOVE_LEFT = True
+        if(event.type, event.key) == (SDL_KEYDOWN, SDLK_RIGHT):
+            self.MOVE_RIGHT = True
+        if(event.type, event.key) == (SDL_KEYUP, SDLK_LEFT):
+            self.MOVE_LEFT = False
+        if(event.type, event.key) == (SDL_KEYUP, SDLK_RIGHT):
+            self.MOVE_RIGHT = False
+        if (event.type, event.key) == (SDL_KEYDOWN, SDLK_UP):
+            self.MOVE_UP = True
+        if (event.type, event.key) == (SDL_KEYDOWN, SDLK_DOWN):
+            self.MOVE_DOWN = True
+        if (event.type, event.key) == (SDL_KEYUP, SDLK_UP):
+            self.MOVE_UP = False
+        if (event.type, event.key) == (SDL_KEYUP, SDLK_DOWN):
+           self.MOVE_DOWN = False
+        if (event.type, event.key) == (SDL_KEYDOWN, SDLK_a):
+            new_attack = Bullet()
+            new_attack.x, new_attack.y = self.x + 10, self.y
+            new_attack.frame = 1
+            bullets.append(new_attack)
 
-        elif(event.type, event.key) == (SDL_KEYDOWN, SDLK_RIGHT):
-            if self.state in(self.STAND, self.MOVE_RIGHT):
-                self.state = self.MOVE_RIGHT
-                self.dir = 1
 
-        elif(event.type, event.key) == (SDL_KEYUP, SDLK_LEFT):
-            if self.state in(self.MOVE_LEFT,):
-                self.state = self.STAND
-                self.dir = 0
+class Bullet:
+    image = None
+    shooting_sound = None
 
-        elif(event.type, event.key) == (SDL_KEYUP, SDLK_RIGHT):
-            if self.state in(self.MOVE_RIGHT,):
-                self.state = self.STAND
-                self.dir = 0
+    PIXEL_PER_KMETER = (10.0 / 0.5)
+    RUN_SPEED_KMPH = 180000.0
+    RUN_SPEED_KMPM = RUN_SPEED_KMPH / 60
+    RUN_SPEED_KMPS = RUN_SPEED_KMPM / 60
+    RUN_SPEED_PPS = RUN_SPEED_KMPS * PIXEL_PER_KMETER
 
-        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_UP):
-            if self.state in (self.STAND, self.MOVE_UP):
-                self.state = self.MOVE_UP
-                self.dir = 1
+    def __init__(self):
+        self.dir = 0
+        self.frame = 0
+        self.x, self.y = 0, 0
 
-        elif (event.type, event.key) == (SDL_KEYDOWN, SDLK_DOWN):
-            if self.state in (self.STAND, self.MOVE_DOWN):
-                self.state = self.MOVE_DOWN
-                self.dir = -1
+        if Bullet.image is None:
+            Bullet.image = load_image('character_bullet.png')
 
-        elif (event.type, event.key) == (SDL_KEYUP, SDLK_UP):
-            if self.state in (self.MOVE_UP,):
-                self.state = self.STAND
-                self.dir = 0
+        self.shooting_sound = load_music('shooting.wav')
+        self.shooting_sound.set_volume(60)
 
-        elif (event.type, event.key) == (SDL_KEYUP, SDLK_DOWN):
-            if self.state in (self.MOVE_DOWN,):
-                self.state = self.STAND
-                self.dir = 0
+    def update(self, frame_time):
+        self.distance = self.RUN_SPEED_PPS * frame_time
+        self.move()
+
+    def move(self):
+        self.x += self.distance
+
+    def draw(self):
+        self.image.clip_draw((self.frame % 9) * 24, 0, 24, 18, self.x, self.y)
+        #self.character_image.clip_draw((self.frame%11) * 40, 0, 40, 40, self.x, self.y)
+
+    def get_bb(self):
+        return self.x - 20, self.y - 10, self.x + 20, self.y + 10
+
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
+
+
+
 
 
 
