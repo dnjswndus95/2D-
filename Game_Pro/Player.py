@@ -4,6 +4,7 @@ import os
 from Resource import*
 
 
+
 bullets = []
 
 #os.chdir('C:\\Temp\\lab01')
@@ -35,7 +36,7 @@ class Player:
         self.frame = 0
         self.total_frame = 0.0
         self.state = self.STAND
-        self.character_image = load_image('character_right.png')
+        self.character_image = load_image('Ayin.png')
 
 
     def you_dead(self):
@@ -63,7 +64,7 @@ class Player:
 
 
     def draw(self):
-        self.character_image.clip_draw((self.frame%11) * 40, 0, 40, 40, self.x, self.y)
+        self.character_image.clip_draw((self.frame % 3) * 60, 0, 60, 68, self.x, self.y)
         # clip_draw_to_origin(self, left, botton, width, height, x, y, w, h)
 
     def handle_event(self, event):
@@ -90,7 +91,10 @@ class Player:
             bullets.append(new_attack)
 
 
+
 class Bullet:
+    image1 = None
+    image2 = None
     image = None
     shooting_sound = None
 
@@ -105,8 +109,11 @@ class Bullet:
         self.frame = 0
         self.x, self.y = 0, 0
 
-        if Bullet.image is None:
-            Bullet.image = load_image('character_bullet.png')
+        if Bullet.image1 is None: # 30 x 60 size
+            Bullet.image1 = load_image('AyinMissile_Arrow.png')
+        if Bullet.image2 is None: # 70 x 15 size
+            Bullet.image2 = load_image('AyinMissile_Moon.png')
+        # 미사일 충돌처리 size 70x60 바운딩박스로 ㄱㄱ
 
         self.shooting_sound = load_music('shooting.wav')
         self.shooting_sound.set_volume(60)
@@ -119,8 +126,8 @@ class Bullet:
         self.x += self.distance
 
     def draw(self):
-        self.image.clip_draw((self.frame % 9) * 24, 0, 24, 18, self.x, self.y)
-        #self.character_image.clip_draw((self.frame%11) * 40, 0, 40, 40, self.x, self.y)
+        self.image1.draw(self.x, self.y)
+        self.image2.draw(self.x, self.y)
 
     def get_bb(self):
         return self.x - 20, self.y - 10, self.x + 20, self.y + 10
