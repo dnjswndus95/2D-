@@ -79,7 +79,7 @@ def update(frame_time):
     update_all_attack(frame_time)
     make_enemy(frame_time)
     update_enemy(frame_time)
-    #dead_effect_update(frame_time)
+    dead_effect_update(frame_time)
     current_time += frame_time
 
 
@@ -136,8 +136,9 @@ def dead_effect_update(frame_time):
     global dead_enemy1, dead_enemy2, dead_enemy3, dead_enemy4
 
     for dead_em1 in dead_enemy1:
+        print(dead_em1)
         dead_em1.update(frame_time)
-        if dead_em1.frame >= 2:
+        if dead_em1.frame >= 10:
             dead_enemy1.remove(dead_em1)
 
 def destroy_world():

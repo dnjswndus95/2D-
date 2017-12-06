@@ -75,13 +75,14 @@ class Dead_Enemy1:
     ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
     FRAMES_PER_ACTION = 4
 
-    def __int__(self):
+    def __init__(self):
         self.image = load_image("EnemyOne(attacked).png")
         self.frame = 0
         self.total_frames = 0
         self.x, self.y = 0, 0
 
     def update(self, frame_time):
+        print(self)
         self.total_frames += self.FRAMES_PER_ACTION * self.ACTION_PER_TIME * frame_time
         self.frame = int(self.total_frames)
 
