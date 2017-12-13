@@ -136,13 +136,12 @@ def dead_effect_update(frame_time):
     global dead_enemy1, dead_enemy2, dead_enemy3, dead_enemy4
 
     for dead_em1 in dead_enemy1:
-        print(dead_em1)
         dead_em1.update(frame_time)
         if dead_em1.frame >= 10:
             dead_enemy1.remove(dead_em1)
 
 def destroy_world():
-    global player, enemies1, enemies2, enemies3, enemyies4, background, player_bullet
+    global player, enemies1, enemies2, enemies3, enemies4, background, player_bullet
     all_enemies = enemies1 + enemies2 + enemies3 + enemies4
 
     del(player)
