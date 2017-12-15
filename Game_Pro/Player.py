@@ -29,7 +29,7 @@ class Player:
         self.dir = 1  # 0 : stand, 1 : right, 2 : left, 3 : up, 4 : down
         self.live = True
         self.frame = 0
-        self.life = 0
+        self.life = 2
         self.total_frame = 0.0
         self.state = self.STAND
         self.character_image = load_image('Ayin.png')
@@ -37,12 +37,12 @@ class Player:
         self.shooting_sound.set_volume(60)
         self.special_attack_sound = load_wav("AyinSpecialAttack.wav")
         self.special_attack_sound.set_volume(80)
+        self.eat_sound = load_wav("PowerUp.wav")
+        self.eat_sound.set_volume(80)
         self.special_attack_count = 2
 
-
-    def you_dead(self):
-        self.live = False
-        pass
+    def eat(self):
+        self.eat_sound.play()
 
     def move(self):
         if self.MOVE_RIGHT:
@@ -66,7 +66,7 @@ class Player:
 
     def draw(self):
         self.character_image.clip_draw(self.frame * 60, 0, 60, 68, self.x, self.y)
-        # clip_draw_to_origin(self, left, botton, width, height, x, y, w, h)
+        # clip_draw_to_origin(self, left, bottom, width, height, x, y, w, h)
 
     def handle_event(self, event):
         if(event.type, event.key) ==(SDL_KEYDOWN, SDLK_LEFT):
@@ -106,10 +106,12 @@ class Player:
                 self.special_attack_sound.play()
                 self.special_attack_count -= 1
                 new_attack = Special_attack()
-                new_attack.x, new_attack.y = self.x - 2200, self.y
-                if new_attack == Special_attack():
-                    main_state.special_attack.append(new_attack)
+                print(Special_attack)
+                new_attack.x, new_attack.y = self.x +50, self.y
+                main_state.special_attack.append(new_attack)
 
+    def get_bb(self):
+        return self.x - 30, self.y -31 , self.x + 30, self.y + 31
 
 
 
@@ -188,8 +190,7 @@ class Bullet_effect():
     image = None
 
     def __init__(self):
-        self.x = 0
-        self.y = 0
+        self.x, self.y = 0, 0
         self.frame = 0
         self.total_frame = 0
 
@@ -213,29 +214,31 @@ class Special_attack():
     RUN_SPEED_KMPS = RUN_SPEED_KMPM / 60
     RUN_SPEED_PPS = RUN_SPEED_KMPS * PIXEL_PER_KMETER
 
-    TIME_PER_ACTION = 0.5
+    TIME_PER_ACTION = 5.0
     ACTION_PER_TIME = 1.0 / TIME_PER_ACTION  #2
-    FRAMES_PER_ACTION = 11
+    FRAMES_PER_ACTION = 4
 
     image = None
 
     def __init__(self):
-        self.x = 0
-        self.y = 0
+        self.x, self.y = 0, 0
         self.frame = 0
-        self.total_frame = 0
+        self.total_frames = 0
         self.distance = 0
+        self.plusdistance = 0
         if Special_attack.image is None:
             Special_attack.image = load_image("SpecialAttack.png")
 
     def update(self, frame_time):
         self.distance = self.RUN_SPEED_PPS * frame_time
-        self.total_frame += self.FRAMES_PER_ACTION * self.ACTION_PER_TIME * frame_time
-        self.frame = int(self.total_frame)
+        self.plusdistance
         self.x += self.distance
+        self.total_frames += self.FRAMES_PER_ACTION * self.ACTION_PER_TIME * frame_time
+        self.frame = int(self.total_frames)
+
 
     def draw(self):
-        self.image.clip_draw(0, self.frame * 100, 2200, 100, self.x, self.y)
+        self.image.clip_draw(self.frame * 2200, 0, 2200, 95, self.x, self.y)
 
     def get_bb(self):
         return self.x - 1100, self.y - 60, self.x + 1100, self.y + 60

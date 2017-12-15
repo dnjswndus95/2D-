@@ -2,11 +2,6 @@ from pico2d import*
 import random
 import main_state
 
-enemy1_time = 0
-enemy2_time = 0
-enemy3_time = 0
-enemy4_time = 0
-
 
 
 
@@ -29,6 +24,7 @@ class Enemy1:
         self.x, self.y = random.randint(700, 790), random.randint(100, 500)
         self.frame = 0
         self.total_frames = 0
+        self.shoot_time = 0
         self.dir = -1 # -1은 앞으로 1은 뒤로
 
         if Enemy1.image is None:
@@ -40,7 +36,7 @@ class Enemy1:
     def update(self, frame_time):
         self.total_frames += self.FRAMES_PER_ACTION * self.ACTION_PER_TIME * frame_time
         self.frame = int(self.total_frames) % 7
-
+        self.shoot_time += frame_time
         self.x += self.x_runspeed * frame_time
         self.y += self.y_runspeed * frame_time
         if self.x > 800:
@@ -51,6 +47,11 @@ class Enemy1:
             self.y_runspeed = -self.y_runspeed
         if self.y < 50:
             self.y_runspeed = -self.y_runspeed
+        if self.shoot_time >= 5.0:
+            new_attack = Enemy_Missile()
+            new_attack.x, new_attack.y = self.x - 5, self.y
+            main_state.enemy_missile.append(new_attack)
+            self.shoot_time = 0
 
     def draw(self):
         self.image.clip_draw((self.frame % 4) * 50, 0, 50, 40, self.x, self.y)
@@ -81,6 +82,7 @@ class Enemy2: # 350 x 40 7개
     def __init__(self):
         self.x, self.y = random.randint(700, 790), random.randint(100, 500)
         self.frame = 0
+        self.shoot_time = 0
         self.total_frames = 0
         self.dir = -1  # -1은 앞으로 1은 뒤로
 
@@ -93,12 +95,17 @@ class Enemy2: # 350 x 40 7개
     def update(self, frame_time):
         self.total_frames += self.FRAMES_PER_ACTION * self.ACTION_PER_TIME * frame_time
         self.frame = int(self.total_frames) % 7
-
+        self.shoot_time += frame_time
         self.x += self.x_runspeed * frame_time
         if self.x > 800:
             self.x_runspeed = -self.x_runspeed
         if self.x < 500:
             self.x_runspeed = -self.x_runspeed
+        if self.shoot_time >= 5.0:
+            new_attack = Enemy_Missile()
+            new_attack.x, new_attack.y = self.x - 5, self.y
+            main_state.enemy_missile.append(new_attack)
+            self.shoot_time = 0
 
     def draw(self):
         self.image.clip_draw((self.frame % 7) * 50, 0, 50, 40, self.x, self.y)
@@ -128,6 +135,7 @@ class Enemy3:
     def __init__(self):
         self.x, self.y = random.randint(700, 790), random.randint(100, 500)
         self.frame = 0
+        self.shoot_time = 0
         self.total_frames = 0
         self.dir = -1  # -1은 앞으로 1은 뒤로
 
@@ -140,7 +148,7 @@ class Enemy3:
     def update(self, frame_time):
         self.total_frames += self.FRAMES_PER_ACTION * self.ACTION_PER_TIME * frame_time
         self.frame = int(self.total_frames) % 7
-
+        self.shoot_time += frame_time
         self.x += self.x_runspeed * frame_time
         self.y += self.y_runspeed * frame_time
         if self.x > 800:
@@ -151,6 +159,11 @@ class Enemy3:
             self.y_runspeed = -self.y_runspeed
         if self.y < 50:
             self.y_runspeed = -self.y_runspeed
+        if self.shoot_time >= 5.0:
+            new_attack = Enemy_Missile()
+            new_attack.x, new_attack.y = self.x - 5, self.y
+            main_state.enemy_missile.append(new_attack)
+            self.shoot_time = 00
 
     def draw(self):
         self.image.clip_draw((self.frame % 4) * 50, 0, 50, 40, self.x, self.y)
@@ -180,6 +193,7 @@ class Enemy4:
         self.x, self.y = random.randint(700, 790), random.randint(100, 500)
         self.frame = 0
         self.total_frames = 0
+        self.shoot_time = 0
         self.dir = -1  # -1은 앞으로 1은 뒤로
 
         if Enemy1.image is None:
@@ -191,7 +205,7 @@ class Enemy4:
     def update(self, frame_time):
         self.total_frames += self.FRAMES_PER_ACTION * self.ACTION_PER_TIME * frame_time
         self.frame = int(self.total_frames) % 7
-
+        self.shoot_time += frame_time
         self.x += self.x_runspeed * frame_time
         self.y += self.y_runspeed * frame_time
         if self.x > 800:
@@ -202,6 +216,11 @@ class Enemy4:
             self.y_runspeed = -self.y_runspeed
         if self.y < 50:
             self.y_runspeed = -self.y_runspeed
+        if self.shoot_time >= 5.0:
+            new_attack = Enemy_Missile()
+            new_attack.x, new_attack.y = self.x - 5, self.y
+            main_state.enemy_missile.append(new_attack)
+            self.shoot_time = 0
 
     def draw(self):
         self.image.clip_draw((self.frame % 6) * 50, 0, 50, 40, self.x, self.y)
@@ -286,3 +305,29 @@ class Dead_Enemy4:
 
     def draw(self):
         self.image.clip_draw((self.frame % 3) * 50, 0, 50, 40, self.x, self.y)
+
+#적 미사일 26x20 size
+class Enemy_Missile:
+    PIXEL_PER_METER = (10.0 / 0.2)
+    RUN_SPEED_KMPH = 20.0
+    RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
+    RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
+    RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+
+    image = None
+
+
+    def __init__(self):
+        self.x, self.y = 0, 0
+
+        if Enemy_Missile.image is None:#26x20
+            Enemy_Missile.image = load_image("enemyMissile.png")
+
+    def update(self, frame_time):
+        self.x -= self.RUN_SPEED_PPS * frame_time
+
+    def draw(self):
+        self.image.draw(self.x, self.y)
+
+    def get_bb(self):
+        return self.x - 13, self.y - 10, self.x +13, self.y + 10
